@@ -14,11 +14,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.ui.NavDisplay
 import com.example.crashexample.ui.theme.CrashExampleTheme
 
 class MainActivity : ComponentActivity() {
+
+    val useWorkAround = false
     @RequiresApi(Build.VERSION_CODES.VANILLA_ICE_CREAM)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,8 +30,9 @@ class MainActivity : ComponentActivity() {
             CrashExampleTheme {
                 val backStack = remember { mutableStateListOf("home") }
 
+                val focus = LocalFocusManager.current
                 NavDisplay(
-                    modifier= Modifier.safeDrawingPadding(),
+                    modifier = Modifier.safeDrawingPadding(),
                     backStack = backStack,
                     onBack = { backStack.removeAt(backStack.lastIndex) },
                     entryProvider = entryProvider {
@@ -42,7 +46,12 @@ class MainActivity : ComponentActivity() {
                                 SelectionContainer {
                                     Text("Selectable Text on Details")
                                 }
-                                Button(onClick = { backStack.removeLast() }) {
+                                Button(onClick = {
+                                    if (useWorkAround) {
+                                        focus.clearFocus()
+                                    }
+                                    backStack.removeLast()
+                                }) {
                                     Text("Go Back")
                                 }
                             }
